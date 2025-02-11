@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Access</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div style="max-width: 800px; margin: 50px auto; padding: 20px;">
+        <h1>Admin Access Test</h1>
+        <div id="status">Checking admin access...</div>
+        <pre id="details" style="background: #f5f5f5; padding: 20px; margin-top: 20px; white-space: pre-wrap;"></pre>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusDiv = document.getElementById('status');
+            const detailsDiv = document.getElementById('details');
+
+            try {
+                // First check auth status
+                const authResponse = await fetch('/auth/status');
+                const authData = await authResponse.json();
+
+                if (!authData.isAuthenticated) {
+                    statusDiv.innerHTML = 'Not logged in. <a href="/login">Login here</a>';
+                    return;
+                }
+
+                // Try accessing admin endpoint
+                const response = await fetch('/api/check-admin');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.innerHTML = '<span style="color: green;">✓ Admin access confirmed!</span>';
+                    detailsDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    statusDiv.innerHTML = '<span style="color: red;">✗ No admin access</span>';
+                    detailsDiv.textContent = 'Error: ' + response.status + ' ' + response.statusText;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<span style="color: red;">✗ Error checking admin access</span>';
+                detailsDiv.textContent = error.toString();
+            }
+        });
+    </script>
+</body>
+</html>
